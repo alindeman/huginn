@@ -2,7 +2,6 @@ Huginn::Application.routes.draw do
   resources :agents do
     member do
       post :run
-      post :dry_run
       post :handle_details_post
       put :leave_scenario
       delete :remove_events
@@ -13,7 +12,6 @@ Huginn::Application.routes.draw do
       put :toggle_visibility
       post :propagate
       get :type_details
-      post :dry_run
       get :event_descriptions
       post :validate
       post :complete
@@ -26,6 +24,14 @@ Huginn::Application.routes.draw do
     end
 
     resources :events, :only => [:index]
+
+    scope module: :agents do
+      resources :dry_runs, only: [:index, :create]
+    end
+  end
+
+  scope module: :agents do
+    resources :dry_runs, only: [:index, :create]
   end
 
   resource :diagram, :only => [:show]
@@ -44,6 +50,7 @@ Huginn::Application.routes.draw do
     member do
       get :share
       get :export
+      put :enable_or_disable_all_agents
     end
 
     resource :diagram, :only => [:show]
@@ -77,6 +84,10 @@ Huginn::Application.routes.draw do
       member do
         put :deactivate
         put :activate
+        get :switch_to_user
+      end
+      collection do
+        get :switch_back
       end
     end
   end
