@@ -15,8 +15,8 @@ The scripts/init script is aware of mysql and postgres linked containers through
 
 and
 
-    POSTGRESQL_PORT_5432_TCP_ADDR
-    POSTGRESQL_PORT_5432_TCP_PORT
+    POSTGRES_PORT_5432_TCP_ADDR
+    POSTGRES_PORT_5432_TCP_PORT
 
 Its recommended to use an image that allows you to create a database via environmental variables at docker run, like `postgresql` or `mysql`, so the db is populated when this script runs.
 
@@ -25,6 +25,8 @@ Additionally, the database variables may be overridden from the above as per the
     DATABASE_ADAPTER #(must be either 'postgresql' or 'mysql2')
     DATABASE_HOST
     DATABASE_PORT
+
+If your database user does not have the permission to create the Huginn database please make sure it exists and set the `DO_NOT_CREATE_DATABASE` environment variable.
 
 This script will run database migrations (rake db:migrate) which should be idempotent.
 

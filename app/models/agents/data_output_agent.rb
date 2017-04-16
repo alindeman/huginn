@@ -57,7 +57,7 @@ module Agents
 
         # Liquid Templating
 
-        In Liquid templating, the following variable is available:
+        In [Liquid](https://github.com/cantino/huginn/wiki/Formatting-Events-using-Liquid) templating, the following variable is available:
 
         * `events`: An array of events being output, sorted in the given order, up to `events_to_show` in number.  For example, if source events contain a site title in the `site_title` key, you can refer to it in `template.title` by putting `{{events.first.site_title}}`.
 
@@ -191,6 +191,8 @@ module Agents
     end
 
     def latest_events(reload = false)
+      received_events = received_events().reorder(id: :asc)
+
       events =
         if (event_ids = memory[:event_ids]) &&
            memory[:events_order] == events_order &&
@@ -208,8 +210,7 @@ module Agents
 
         new_events =
           if last_event_id = memory[:last_event_id]
-            received_events.where(Event.arel_table[:id].gt(last_event_id)).
-              order(id: :asc).to_a
+            received_events.where(Event.arel_table[:id].gt(last_event_id)).to_a
           else
             source_ids.flat_map { |source_id|
               # dig twice as many events as the number of
@@ -245,9 +246,7 @@ module Agents
 
       source_events = sort_events(latest_events(), 'events_list_order')
 
-      interpolation_context.stack do
-        interpolation_context['events'] = source_events
-
+      interpolate_with('events' => source_events) do
         items = source_events.map do |event|
           interpolated = interpolate_options(options['template']['item'], event)
           interpolated['guid'] = {'_attributes' => {'isPermaLink' => 'false'},
